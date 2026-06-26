@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    // Target moderno compatível com o runtime V8 do Cloudflare Workers
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+
+    // Tipos do Cloudflare Workers (D1, Queue, Vectorize, AI, etc.)
+    "types": ["@cloudflare/workers-types"],
+
+    // Strict mode: detecta erros em tempo de compilação
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Não emite arquivos — wrangler faz o bundling
+    "noEmit": true,
+
+    // Permite importar arquivos JSON
+    "resolveJsonModule": true,
+
+    // Habilita interop entre ESM e CJS quando necessário
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Preserva JSX (não usado aqui, mas boa prática incluir)
+    "jsx": "react-jsx",
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "chatbot-edge",
+  "version": "1.0.0",
+  "description": "Chatbot serverless com Cloudflare Workers, Queues, Vectorize (RAG), D1 e Workers AI",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.78.0"
+  }
+}
