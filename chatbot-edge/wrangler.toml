@@ -1,0 +1,59 @@
+# wrangler.toml — Configuração do Cloudflare Workers
+#
+# Estrutura:
+#  - Worker principal (index.ts): recebe webhooks e enfileira mensagens
+#  - Consumer (consumer.ts): processa mensagens da Queue de forma assíncrona
+#  - Bindings: Queue, D1, Vectorize e Workers AI
+
+name = "chatbot-edge"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+# Habilita módulos ESM (padrão moderno para Workers)
+# Necessário para uso de import/export e tipagem TypeScript
+node_compat = false
+
+# ─── Variáveis de ambiente ───────────────────────────────────────────────────
+[vars]
+ENVIRONMENT = "production"
+
+# ─── Queue: Producer binding ─────────────────────────────────────────────────
+# O Worker principal envia mensagens para esta fila.
+# Custo: 1M mensagens/mês gratuitas; $0.40 por 1M adicionais.
+[[queues.producers]]
+queue = "chatbot-queue"
+binding = "QUEUE"
+
+# ─── Queue: Consumer binding ─────────────────────────────────────────────────
+# O consumer.ts processa mensagens de forma assíncrona.
+# max_batch_size: máximo de mensagens por invocação do consumer
+# max_retries: tentativas antes de enviar para dead-letter queue
+[[queues.consumers]]
+queue = "chatbot-queue"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "chatbot-dlq"
+
+# ─── D1: Banco de dados SQL na edge ──────────────────────────────────────────
+# Persiste histórico de conversas. Substituir "your-d1-id" pelo ID real:
+#   wrangler d1 create chatbot-db   → copia o database_id gerado
+# Custo: 5GB + 5M rows escritas/mês gratuitas.
+[[d1_databases]]
+binding = "DB"
+database_name = "chatbot-db"
+database_id = "your-d1-id"
+
+# ─── Vectorize: Índice de vetores para RAG ────────────────────────────────────
+# Armazena embeddings dos documentos de conhecimento.
+# Criar o índice: wrangler vectorize create chatbot-index --dimensions=768 --metric=cosine
+# Custo: 5M dimensões consultadas/mês gratuitas.
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "chatbot-index"
+
+# ─── Workers AI: Inferência serverless ───────────────────────────────────────
+# Disponibiliza modelos como Llama 3 sem gerenciar GPUs.
+# Custo: 10k neurônios/dia gratuitos; depois ~$0.011/1k neurônios.
+[ai]
+binding = "AI"
